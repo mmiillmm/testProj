@@ -1,46 +1,76 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ShowTextOnEnter : MonoBehaviour
 {
-    public GameObject text;  // The text UI element to display
-    private bool isPlayerInRange = false; // Flag to track if the player is inside the trigger area
+    public TMP_Text text;
+    public RectTransform background;
+    public Vector2 padding = new Vector2(20, 20);
+    public float typeSpeed = 0.05f;
+    private bool isPlayerInRange = false;
+    private string fullText = "";
 
     private void Start()
     {
-        text.SetActive(false);  // Ensure the text is hidden at the start
+        text.enabled = false;
+        background.gameObject.SetActive(false);
+        fullText = text.text;
+        text.text = "";
     }
 
     private void OnTriggerEnter(Collider player)
     {
         if (player.CompareTag("Player"))
-        {
-            isPlayerInRange = true; // Player entered the trigger area
-        }
+            isPlayerInRange = true;
     }
 
     private void OnTriggerExit(Collider player)
     {
         if (player.CompareTag("Player"))
         {
-            isPlayerInRange = false; // Player exited the trigger area
-            text.SetActive(false);   // Hide text if the player leaves the trigger area
+            isPlayerInRange = false;
+            text.enabled = false;
+            background.gameObject.SetActive(false);
+            StopAllCoroutines();
+            text.text = "";
         }
     }
 
     private void Update()
     {
-        if (isPlayerInRange && Input.GetKeyDown(KeyCode.E)) // Check if player is in range and presses "E"
+        if (isPlayerInRange && Input.GetKeyDown(KeyCode.E))
         {
-            text.SetActive(true); // Show the text when "E" is pressed
-            StartCoroutine(Wait()); // Start the countdown to hide the text after a delay
+            text.enabled = true;
+            background.gameObject.SetActive(true);
+            StartCoroutine(TypeText());
         }
+    }
+
+    private void UpdateBackgroundSize()
+    {
+        Vector2 textSize = text.GetRenderedValues(false);
+        background.sizeDelta = textSize + padding;
+    }
+
+    IEnumerator TypeText()
+    {
+        text.text = "";
+        foreach (char c in fullText)
+        {
+            text.text += c;
+            UpdateBackgroundSize();
+            yield return new WaitForSeconds(typeSpeed);
+        }
+        StartCoroutine(Wait());
     }
 
     IEnumerator Wait()
     {
-        yield return new WaitForSeconds(3); // Wait for 3 seconds
-        text.SetActive(false); // Hide the text after the wait time
+        yield return new WaitForSeconds(3);
+        text.enabled = false;
+        background.gameObject.SetActive(false);
+        text.text = "";
     }
 }
