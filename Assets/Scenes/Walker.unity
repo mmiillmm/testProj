@@ -538,7 +538,7 @@ MonoBehaviour:
     m_Bits: 8
   otherFoot: {fileID: 705970521}
   body: {fileID: 392126455}
-  footOffset: {x: 0, y: 0, z: -0.9}
+  footOffset: {x: 0, y: 0, z: -0.5}
 --- !u!1 &164444189 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a857f5758aea5d5479eb0c76b5ca6c12, type: 3}
@@ -1021,6 +1021,9 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: a857f5758aea5d5479eb0c76b5ca6c12, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 1734702511}
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: a857f5758aea5d5479eb0c76b5ca6c12, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1168160563}
@@ -1616,6 +1619,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1734702511}
+  - component: {fileID: 1734702512}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -1631,13 +1635,36 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1734702510}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.59, y: 1, z: -10}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.06, y: 1.52, z: -7.869865}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 164444193}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1734702512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734702510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2f6f0df9f049884d973b25b74b3dd07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: 0, y: 2, z: -5}
+  damping: 0.1
+  minDistance: 1
+  zoomAggressiveness: 0.75
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  terrainLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  target: {fileID: 392126455}
 --- !u!4 &1903641691 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2854563699051640978, guid: a857f5758aea5d5479eb0c76b5ca6c12, type: 3}
@@ -1711,5 +1738,4 @@ SceneRoots:
   - {fileID: 578064111}
   - {fileID: 83906881}
   - {fileID: 1381959474}
-  - {fileID: 1734702511}
   - {fileID: 1386894459}
