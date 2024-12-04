@@ -25,7 +25,6 @@ public class IKFootSolver : MonoBehaviour
         lerp = 1;
     }
 
-    // Update is called once per frame
 
     void Update()
     {

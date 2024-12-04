@@ -3,13 +3,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 5f;
-    public float climbSpeed = 2.5f; // Reduced climb speed for slower climbing
-    private float moveInput;
+    private float moveHorizontal;
+    private float moveVertical;
     private Animator animator;
     private bool facingRight = true;
-    private bool isClimbing = false;
     private Rigidbody rb;
-    private Collider ladder;
 
     void Start()
     {
@@ -20,49 +18,26 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // Get horizontal input (left and right movement)
-        moveInput = Input.GetAxisRaw("Horizontal");
+        // Get input for horizontal (left/right) and vertical (forward/backward) movement
+        moveHorizontal = Input.GetAxisRaw("Horizontal");
+        moveVertical = Input.GetAxisRaw("Vertical");
 
         // Apply movement to the player using Rigidbody velocity
-        Vector3 horizontalVelocity = new Vector3(moveInput * moveSpeed, rb.linearVelocity.y, 0);
-        rb.linearVelocity = horizontalVelocity;
+        Vector3 movement = new Vector3(moveHorizontal * moveSpeed, rb.linearVelocity.y, moveVertical * moveSpeed);
+        rb.linearVelocity = movement;
 
-        // Set isMoving based on whether there is horizontal input
-        bool isMoving = Mathf.Abs(moveInput) > 0;
+        // Set isMoving based on whether there is any movement input
+        bool isMoving = Mathf.Abs(moveHorizontal) > 0 || Mathf.Abs(moveVertical) > 0;
         animator.SetBool("isMoving", isMoving);
 
-        // Flip the player to face the movement direction
-        if (moveInput > 0 && !facingRight)
+        // Flip the player to face the movement direction (horizontal only)
+        if (moveHorizontal > 0 && !facingRight)
         {
             Flip();
         }
-        else if (moveInput < 0 && facingRight)
+        else if (moveHorizontal < 0 && facingRight)
         {
             Flip();
-        }
-
-        // Ladder climbing logic
-        float verticalInput = Input.GetAxisRaw("Vertical");
-        if (ladder != null && verticalInput > 0)
-        {
-            isClimbing = true;
-            rb.useGravity = false;
-            rb.linearVelocity = new Vector3(0, verticalInput * climbSpeed, 0);
-        }
-        else if (ladder != null && verticalInput == 0)
-        {
-            // Stop climbing when not holding the vertical input
-            rb.linearVelocity = new Vector3(0, 0, 0);
-        }
-        else if (isClimbing && ladder == null)
-        {
-            isClimbing = false;
-            rb.useGravity = true;
-        }
-
-        if (!isClimbing)
-        {
-            rb.useGravity = true;
         }
     }
 
@@ -72,22 +47,5 @@ public class PlayerController : MonoBehaviour
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
-    }
-
-    void OnTriggerEnter(Collider collision)
-    {
-        if (collision.CompareTag("Ladder"))
-        {
-            ladder = collision;
-        }
-    }
-
-    void OnTriggerExit(Collider collision)
-    {
-        if (collision.CompareTag("Ladder"))
-        {
-            ladder = null;
-            rb.useGravity = true;
-        }
     }
 }

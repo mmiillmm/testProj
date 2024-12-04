@@ -4,21 +4,22 @@ public class FootSolver : MonoBehaviour
 {
     [SerializeField] private LayerMask terrainLayer;
     [SerializeField] private FootSolver otherFoot;
-    private float stepDistance = 1f; // Reduced distance for more frequent stepping
-    private float stepHeight = 1.0f;   // Higher arc for more realistic lift
-    private float stepLength = 1.5f;   // Increased length for longer strides
-    private float footSpacing = 0.5f;
-    private float speed = 1.0f;
     [SerializeField] private Transform body;
-    public Vector3 footOffset = Vector3.zero;
 
+    private float stepDistance = 1f; // Distance before a new step is triggered
+    private float stepHeight = 1.0f; // Arc height of the step
+    private float stepLength = 1.5f; // Length of the step forward
+    private float footSpacing = 0.5f; // Lateral spacing of the foot
+    private float speed = 5.0f; // Speed of the step interpolation
+
+    public Vector3 footOffset = Vector3.zero; // Offset for foot position adjustments
     private Vector3 oldPosition, newPosition, currentPosition;
     private Vector3 oldNormal, currentNormal, newNormal;
     private float lerp;
 
     void Start()
     {
-        // Set initial positions and normals
+        // Initialize foot positions and normals
         currentPosition = body.position + (body.right * footSpacing) + footOffset;
         oldPosition = newPosition = currentPosition;
         oldNormal = currentNormal = newNormal = transform.up;
@@ -27,51 +28,47 @@ public class FootSolver : MonoBehaviour
 
     void Update()
     {
-        // Set the foot position and orientation
+        // Update foot position and orientation
         transform.position = currentPosition;
         transform.up = currentNormal;
 
-        // Raycast to find the ground position for the foot
+        // Cast a ray to detect the terrain below
         Vector3 rayOrigin = body.position + (body.right * footSpacing);
         Ray ray = new Ray(rayOrigin, Vector3.down);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, 10, terrainLayer.value))
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f, terrainLayer)) // Adjusted raycast length
         {
-            // Trigger a new step if the foot is far enough and the other foot is not moving
-            if (Vector3.Distance(newPosition, hit.point) > stepDistance && !otherFoot.isMoving() && lerp >= 1)
+            // Trigger a step if the distance from the current position is large enough
+            if (Vector3.Distance(currentPosition, hit.point) > stepDistance && !otherFoot.isMoving() && lerp >= 1)
             {
                 lerp = 0;
 
-                // Determine step direction based on body's local z-axis position
-                int direction = body.InverseTransformPoint(hit.point).z > body.InverseTransformPoint(newPosition).z ? 1 : -1;
+                // Calculate the target position for the step
+                Vector3 direction = (body.forward).normalized;
+                newPosition = hit.point + direction * stepLength + footOffset + (body.right * footSpacing);
 
-                // Set new target position and normal for the step
-                newPosition = hit.point + (body.forward * stepLength * direction) + footOffset + (body.right * footSpacing);
-                newPosition.y = Mathf.Max(newPosition.y, hit.point.y); // Ensure foot stays above ground
-
+                // Ensure the foot stays above ground
+                newPosition.y = Mathf.Max(newPosition.y, hit.point.y);
                 newNormal = hit.normal;
             }
         }
 
-        // Perform step interpolation if the foot is moving
+        // Handle step interpolation
         if (lerp < 1)
         {
             Vector3 tempPos = Vector3.Lerp(oldPosition, newPosition, lerp);
-            tempPos.y += Mathf.Sin(lerp * Mathf.PI) * stepHeight; // Higher arc for more realistic lift
+            tempPos.y += Mathf.Sin(lerp * Mathf.PI) * stepHeight; // Add arc for step height
             currentPosition = tempPos;
             currentNormal = Vector3.Lerp(oldNormal, newNormal, lerp);
             lerp += Time.deltaTime * speed;
         }
         else
         {
-            // Update old position and normal after completing the step
+            // Reset old position and normal after completing the step
             oldPosition = newPosition;
             oldNormal = newNormal;
         }
     }
 
-    public bool isMoving()
-    {
-        return lerp < 1;
-    }
+    public bool isMoving() => lerp < 1;
 }
