@@ -1,10 +1,13 @@
 using UnityEngine;
+using System.Collections;
 
 public class LightFlicker : MonoBehaviour
 {
     public float minIntensity = 0.5f;
     public float maxIntensity = 1.5f;
     public float flickerSpeed = 0.1f;
+    public float minDelay = 0.1f;
+    public float maxDelay = 0.5f;
 
     private Light pointLight;
     private float targetIntensity;
@@ -14,22 +17,21 @@ public class LightFlicker : MonoBehaviour
     {
         pointLight = GetComponent<Light>();
         currentIntensity = pointLight.intensity;
-        SetNewTargetIntensity();
+        StartCoroutine(FlickerRoutine());
     }
 
-    void Update()
+    IEnumerator FlickerRoutine()
     {
-        currentIntensity = Mathf.MoveTowards(currentIntensity, targetIntensity, flickerSpeed * Time.deltaTime);
-        pointLight.intensity = currentIntensity;
-
-        if (Mathf.Approximately(currentIntensity, targetIntensity))
+        while (true)
         {
-            SetNewTargetIntensity();
+            targetIntensity = Random.Range(minIntensity, maxIntensity);
+            while (!Mathf.Approximately(currentIntensity, targetIntensity))
+            {
+                currentIntensity = Mathf.MoveTowards(currentIntensity, targetIntensity, flickerSpeed * Time.deltaTime);
+                pointLight.intensity = currentIntensity;
+                yield return null;
+            }
+            yield return new WaitForSeconds(Random.Range(minDelay, maxDelay));
         }
-    }
-
-    void SetNewTargetIntensity()
-    {
-        targetIntensity = Random.Range(minIntensity, maxIntensity);
     }
 }
