@@ -1,50 +1,76 @@
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
 
-public class StartMenuController : MonoBehaviour
+public class StartButton : MonoBehaviour
 {
-    public CanvasGroup startMenuCanvasGroup; // Reference to CanvasGroup for fading
-    public Transform cameraTarget;          // Target position for the camera
-    public float cameraMoveSpeed = 2f;      // Speed of the camera movement
-    public float fadeDuration = 1f;         // Duration of the fade
-    public Camera mainCamera;               // Reference to the camera to move
+    public Camera mainCamera;
+    public Transform targetPosition;
+    public float cameraMoveSpeed = 2f;
+    public CanvasGroup menuCanvasGroup;
 
-    private bool shouldMoveCamera = false;  // Tracks if the camera should move
-    private bool isFading = false;          // Tracks if the menu is fading
-    private Vector3 velocity = Vector3.zero; // Used for SmoothDamp
+    public AudioSource introAudio;
+    public AudioSource mainAudio;
+    public float audioFadeDuration = 2f;
 
-    private void Update()
+    private bool isGameStarted = false;
+
+    public void OnStartButtonClicked()
     {
-        if (isFading)
-        {
-            startMenuCanvasGroup.alpha -= Time.deltaTime / fadeDuration;
-            if (startMenuCanvasGroup.alpha <= 0)
-            {
-                startMenuCanvasGroup.gameObject.SetActive(false);
-                isFading = false;
-                shouldMoveCamera = true;
-            }
-        }
+        if (isGameStarted) return;
 
-        if (shouldMoveCamera)
-        {
-            mainCamera.transform.position = Vector3.SmoothDamp(
-                mainCamera.transform.position,
-                cameraTarget.position,
-                ref velocity,
-                cameraMoveSpeed
-            );
+        isGameStarted = true;
 
-            if (Vector3.Distance(mainCamera.transform.position, cameraTarget.position) < 0.01f)
-            {
-                shouldMoveCamera = false;
-                Debug.Log("Camera reached the target position!");
-            }
+        StartCoroutine(MoveCamera());
+        StartCoroutine(FadeOutMenu());
+        StartCoroutine(CrossfadeAudio());
+    }
+
+    private IEnumerator MoveCamera()
+    {
+        while (Vector3.Distance(mainCamera.transform.position, targetPosition.position) > 0.1f)
+        {
+            mainCamera.transform.position = Vector3.MoveTowards(mainCamera.transform.position, targetPosition.position, cameraMoveSpeed * Time.deltaTime);
+            yield return null;
         }
     }
 
-    public void StartGame()
+    private IEnumerator FadeOutMenu()
     {
-        Debug.Log("Boom! Button clicked. Starting game...");
-        isFading = true; // Start the fade-out process
+        float startAlpha = menuCanvasGroup.alpha;
+        float fadeDuration = 1f;
+        float timer = 0f;
+
+        while (timer < fadeDuration)
+        {
+            timer += Time.deltaTime;
+            menuCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, timer / fadeDuration);
+            yield return null;
+        }
+
+        menuCanvasGroup.interactable = false;
+        menuCanvasGroup.blocksRaycasts = false;
+    }
+
+    private IEnumerator CrossfadeAudio()
+    {
+        float introStartVolume = introAudio.volume;
+        float mainStartVolume = mainAudio.volume;
+
+        mainAudio.Play();
+
+        float timer = 0f;
+
+        while (timer < audioFadeDuration)
+        {
+            timer += Time.deltaTime;
+            introAudio.volume = Mathf.Lerp(introStartVolume, 0f, timer / audioFadeDuration);
+            mainAudio.volume = Mathf.Lerp(0f, mainStartVolume, timer / audioFadeDuration);
+
+            yield return null;
+        }
+
+        introAudio.Stop();
+        introAudio.volume = introStartVolume;
     }
 }

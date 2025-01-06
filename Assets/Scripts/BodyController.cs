@@ -4,7 +4,6 @@ public class BodyController : MonoBehaviour
 {
     [SerializeField] private LayerMask terrainLayer;
     [SerializeField] private float bodyHeightOffset = 1.5f;
-    [SerializeField] private float maxTiltAngle = 30f;
     [SerializeField] private float adjustmentSpeed = 5.0f;
 
     private Vector3 targetPosition;
