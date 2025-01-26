@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IDataPersistence
 {
     public float moveSpeed = 5f;
     private float moveHorizontal;
@@ -11,26 +11,21 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        // Get the Animator and Rigidbody components attached to the player
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
-        // Get input for horizontal (left/right) and vertical (forward/backward) movement
         moveHorizontal = Input.GetAxisRaw("Horizontal");
         moveVertical = Input.GetAxisRaw("Vertical");
 
-        // Apply movement to the player using Rigidbody velocity
         Vector3 movement = new Vector3(moveHorizontal * moveSpeed, rb.linearVelocity.y, moveVertical * moveSpeed);
         rb.linearVelocity = movement;
 
-        // Set isMoving based on whether there is any movement input
         bool isMoving = Mathf.Abs(moveHorizontal) > 0 || Mathf.Abs(moveVertical) > 0;
         animator.SetBool("isMoving", isMoving);
 
-        // Flip the player to face the movement direction (horizontal only)
         if (moveHorizontal > 0 && !facingRight)
         {
             Flip();
@@ -47,5 +42,15 @@ public class PlayerController : MonoBehaviour
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
+    }
+
+    public void LoadData(GameData data)
+    {
+        this.transform.position = data.playerPosition;
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        data.playerPosition = this.transform.position;
     }
 }
