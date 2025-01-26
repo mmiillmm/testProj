@@ -15,6 +15,11 @@ public class StartButton : MonoBehaviour
 
     private bool isGameStarted = false;
 
+    public MonoBehaviour nextScript;
+    public float slowDownDuration = 1f;
+    public float shakeIntensity = 0.5f;
+    public float shakeSpeed = 10f;
+
     public void OnStartButtonClicked()
     {
         if (isGameStarted) return;
@@ -28,10 +33,54 @@ public class StartButton : MonoBehaviour
 
     private IEnumerator MoveCamera()
     {
+        Vector3 initialPosition = mainCamera.transform.position;
+        float totalDistance = Vector3.Distance(initialPosition, targetPosition.position);
+
         while (Vector3.Distance(mainCamera.transform.position, targetPosition.position) > 0.1f)
         {
-            mainCamera.transform.position = Vector3.MoveTowards(mainCamera.transform.position, targetPosition.position, cameraMoveSpeed * Time.deltaTime);
+            Vector3 target = Vector3.MoveTowards(mainCamera.transform.position, targetPosition.position, cameraMoveSpeed * Time.deltaTime);
+            mainCamera.transform.position = target;
+            ApplyCameraShake();
             yield return null;
+        }
+
+        mainCamera.transform.position = targetPosition.position;
+        yield return StartCoroutine(SlowDownAnimation());
+
+        ActivateNextScript();
+    }
+
+    private IEnumerator SlowDownAnimation()
+    {
+        Vector3 startPosition = mainCamera.transform.position;
+        Vector3 endPosition = targetPosition.position;
+        float timer = 0f;
+
+        while (timer < slowDownDuration)
+        {
+            timer += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, timer / slowDownDuration);
+            Vector3 interpolatedPosition = Vector3.Lerp(startPosition, endPosition, t);
+            mainCamera.transform.position = interpolatedPosition;
+            ApplyCameraShake();
+            yield return null;
+        }
+
+        mainCamera.transform.position = endPosition;
+    }
+
+    private void ApplyCameraShake()
+    {
+        float shakeX = Mathf.Sin(Time.time * shakeSpeed) * shakeIntensity;
+        float shakeY = Mathf.Cos(Time.time * shakeSpeed) * shakeIntensity;
+        mainCamera.transform.rotation = Quaternion.Euler(new Vector3(shakeY, shakeX, 0f));
+    }
+
+    private void ActivateNextScript()
+    {
+        if (nextScript != null)
+        {
+            nextScript.enabled = true;
         }
     }
 

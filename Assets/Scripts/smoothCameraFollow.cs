@@ -13,6 +13,9 @@ public class SmoothCameraFollow : MonoBehaviour
     [SerializeField] private LayerMask terrainLayers;
     [SerializeField] private LayerMask boundaryLayers;
 
+    [SerializeField] private float shakeIntensity = 0.5f;
+    [SerializeField] private float shakeSpeed = 10f;
+
     public Transform target;
 
     private Vector3 vel = Vector3.zero;
@@ -32,7 +35,6 @@ public class SmoothCameraFollow : MonoBehaviour
             desiredPosition = target.position + (offset.normalized * Mathf.Max(minDistance, distance * zoomFactor));
         }
 
-        // Clamp the desired position within the defined boundaries
         if (Physics.Raycast(target.position, (desiredPosition - target.position).normalized, out hit, Vector3.Distance(target.position, desiredPosition), boundaryLayers))
         {
             desiredPosition = hit.point;
@@ -40,5 +42,14 @@ public class SmoothCameraFollow : MonoBehaviour
 
         transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref vel, damping);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * damping);
+
+        ApplyCameraShake();
+    }
+
+    private void ApplyCameraShake()
+    {
+        float shakeX = Mathf.Sin(Time.time * shakeSpeed) * shakeIntensity;
+        float shakeY = Mathf.Cos(Time.time * shakeSpeed) * shakeIntensity;
+        transform.rotation *= Quaternion.Euler(new Vector3(shakeY, shakeX, 0f));
     }
 }
