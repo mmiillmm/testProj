@@ -13,7 +13,7 @@ public class FileDataHandler
     private string dataFileName = "";
 
     private bool useEncryption = false;
-    private readonly string ecryptionPassword = "fuckyouhadumbass";
+    private readonly string ecryptionPassword = "fuckyouhahadumbass";
 
     public FileDataHandler(string dataDirPath, string dataFileName, bool useEncryption)
     {
