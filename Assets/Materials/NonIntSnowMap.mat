@@ -38,7 +38,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _RenderTexture:
-        m_Texture: {fileID: 8400000, guid: ada3127324101844a8900d8f1f00aadb, type: 2}
+        m_Texture: {fileID: 8400000, guid: dbe7d419eb366b844988c83162053b2f, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -57,7 +57,7 @@ Material:
     m_Floats:
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _SnowScale: 80
+    - _SnowScale: 200
     - _VertOffscale: 1
     m_Colors:
     - _SnowColor: {r: 1, g: 1, b: 1, a: 1}
