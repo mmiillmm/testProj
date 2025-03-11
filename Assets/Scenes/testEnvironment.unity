@@ -262,7 +262,6 @@ GameObject:
   - component: {fileID: 473817695}
   - component: {fileID: 473817694}
   - component: {fileID: 473817693}
-  - component: {fileID: 473817692}
   - component: {fileID: 473817691}
   - component: {fileID: 473817690}
   m_Layer: 0
@@ -385,35 +384,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   m_MaxRayIntersections: 0
---- !u!114 &473817692
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 473817689}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f2f6f0df9f049884d973b25b74b3dd07, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  offset: {x: 0, y: 5, z: -11}
-  rotation: {x: 9.914, y: 0, z: 0}
-  damping: 0
-  minDistance: 1
-  zoomAggressiveness: 0.75
-  obstacleLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  terrainLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  boundaryLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  shakeIntensity: 0
-  shakeSpeed: 0
-  target: {fileID: 831489411}
 --- !u!114 &473817693
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -966,7 +936,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce6970716939874aa7e6b9aecbff7e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  footstepsSound: {fileID: 503287533}
+  footstepsSound: {fileID: 0}
 --- !u!4 &831489411 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7042843654892685819, guid: 2beeb560aa6eea94784af31fba77976d, type: 3}
@@ -1265,7 +1235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fileName: saveTest.game
-  useEncryption: 0
+  useEncryption: 1
 --- !u!4 &1316804929
 Transform:
   m_ObjectHideFlags: 0
@@ -6329,9 +6299,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minIntensity: 0.5
   maxIntensity: 1.5
-  flickerSpeed: 1
-  minDelay: 0
-  maxDelay: 0
+  flickerSpeed: 0.1
+  minDelay: 0.1
+  maxDelay: 0.5
 --- !u!114 &1915848017
 MonoBehaviour:
   m_ObjectHideFlags: 0

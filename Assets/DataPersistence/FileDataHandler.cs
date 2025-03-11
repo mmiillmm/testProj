@@ -96,4 +96,15 @@ public class FileDataHandler
 
         return modifiedData;
     }
+
+    public byte[] LoadRawEncryptedSave()
+    {
+        string path = Path.Combine(dataDirPath, dataFileName);
+        if (File.Exists(path))
+        {
+            return File.ReadAllBytes(path);
+        }
+        return null;
+    }
+
 }

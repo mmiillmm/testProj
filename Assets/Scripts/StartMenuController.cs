@@ -20,8 +20,16 @@ public class StartButton : MonoBehaviour
     public float shakeIntensity = 0.5f;
     public float shakeSpeed = 10f;
 
+    void Start()
+    {
+        Debug.Log("menucont script fasza");
+        OnStartButtonClicked();
+    }
+
+
     public void OnStartButtonClicked()
     {
+        Debug.Log("cklick");
         if (isGameStarted) return;
 
         isGameStarted = true;
