@@ -20,9 +20,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: InteractiveSnowMat
+  m_Name: InteractiveSnowMat 2
   m_Shader: {fileID: -6465566751694194690, guid: 7e42e411176c6e04a90b7ddbeb59a511, type: 3}
-  m_Parent: {fileID: 2100000, guid: d6f27cee689477c4a8214b637e7384b8, type: 2}
+  m_Parent: {fileID: 2100000, guid: 893e79a73c39f91498e00217fac5ebbf, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
