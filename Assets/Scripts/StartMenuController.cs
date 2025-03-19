@@ -14,7 +14,6 @@ public class StartButton : MonoBehaviour
     public float audioFadeDuration = 2f;
 
     private bool isGameStarted = false;
-
     public MonoBehaviour nextScript;
     public float slowDownDuration = 1f;
     public float shakeIntensity = 0.5f;
@@ -22,16 +21,12 @@ public class StartButton : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("menucont script fasza");
-        OnStartButtonClicked();
+        menuCanvasGroup.blocksRaycasts = true; 
     }
-
 
     public void OnStartButtonClicked()
     {
-        Debug.Log("cklick");
         if (isGameStarted) return;
-
         isGameStarted = true;
 
         StartCoroutine(MoveCamera());
@@ -42,17 +37,19 @@ public class StartButton : MonoBehaviour
     private IEnumerator MoveCamera()
     {
         Vector3 initialPosition = mainCamera.transform.position;
+        Quaternion initialRotation = mainCamera.transform.rotation;
         float totalDistance = Vector3.Distance(initialPosition, targetPosition.position);
 
         while (Vector3.Distance(mainCamera.transform.position, targetPosition.position) > 0.1f)
         {
-            Vector3 target = Vector3.MoveTowards(mainCamera.transform.position, targetPosition.position, cameraMoveSpeed * Time.deltaTime);
-            mainCamera.transform.position = target;
-            ApplyCameraShake();
+            mainCamera.transform.position = Vector3.MoveTowards(
+                mainCamera.transform.position, targetPosition.position, cameraMoveSpeed * Time.deltaTime);
+            ApplyCameraShake(initialRotation);
             yield return null;
         }
 
         mainCamera.transform.position = targetPosition.position;
+        mainCamera.transform.rotation = initialRotation;
         yield return StartCoroutine(SlowDownAnimation());
 
         ActivateNextScript();
@@ -68,35 +65,30 @@ public class StartButton : MonoBehaviour
         {
             timer += Time.deltaTime;
             float t = Mathf.SmoothStep(0f, 1f, timer / slowDownDuration);
-            Vector3 interpolatedPosition = Vector3.Lerp(startPosition, endPosition, t);
-            mainCamera.transform.position = interpolatedPosition;
-            ApplyCameraShake();
+            mainCamera.transform.position = Vector3.Lerp(startPosition, endPosition, t);
             yield return null;
         }
 
         mainCamera.transform.position = endPosition;
     }
 
-    private void ApplyCameraShake()
+    private void ApplyCameraShake(Quaternion originalRotation)
     {
         float shakeX = Mathf.Sin(Time.time * shakeSpeed) * shakeIntensity;
         float shakeY = Mathf.Cos(Time.time * shakeSpeed) * shakeIntensity;
-        mainCamera.transform.rotation = Quaternion.Euler(new Vector3(shakeY, shakeX, 0f));
+        mainCamera.transform.rotation = originalRotation * Quaternion.Euler(new Vector3(shakeY, shakeX, 0f));
     }
 
     private void ActivateNextScript()
     {
-        if (nextScript != null)
-        {
-            nextScript.enabled = true;
-        }
+        if (nextScript != null) nextScript.enabled = true;
     }
 
     private IEnumerator FadeOutMenu()
     {
-        float startAlpha = menuCanvasGroup.alpha;
         float fadeDuration = 1f;
         float timer = 0f;
+        float startAlpha = menuCanvasGroup.alpha;
 
         while (timer < fadeDuration)
         {
@@ -105,6 +97,7 @@ public class StartButton : MonoBehaviour
             yield return null;
         }
 
+        menuCanvasGroup.alpha = 0f;
         menuCanvasGroup.interactable = false;
         menuCanvasGroup.blocksRaycasts = false;
     }
@@ -115,7 +108,6 @@ public class StartButton : MonoBehaviour
         float mainStartVolume = mainAudio.volume;
 
         mainAudio.Play();
-
         float timer = 0f;
 
         while (timer < audioFadeDuration)
@@ -123,7 +115,6 @@ public class StartButton : MonoBehaviour
             timer += Time.deltaTime;
             introAudio.volume = Mathf.Lerp(introStartVolume, 0f, timer / audioFadeDuration);
             mainAudio.volume = Mathf.Lerp(0f, mainStartVolume, timer / audioFadeDuration);
-
             yield return null;
         }
 
