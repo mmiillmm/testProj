@@ -1,15 +1,16 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-
+[Serializable]
 public class GameData
 {
-    public Vector3 playerPosition;
+    public Vector3 snowTestPlayerPosition;
+    public int killCount;
 
     public GameData()
     {
-        playerPosition = Vector3.zero;
+        snowTestPlayerPosition = Vector3.zero;
+        killCount = 0;
     }
 }

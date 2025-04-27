@@ -38,11 +38,13 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _RenderTexture:
-        m_Texture: {fileID: 8400000, guid: 2e36b0b5292e98f4e8af6b0f3d55d314, type: 2}
+        m_Texture: {fileID: 8400000, guid: dbe7d419eb366b844988c83162053b2f, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _SnowScale: 100
+    - _VertOffscale: 10
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

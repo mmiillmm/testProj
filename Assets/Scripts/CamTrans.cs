@@ -9,7 +9,7 @@ public class StartScreenManager : MonoBehaviour
 
     public void OnPlayButtonClicked()
     {
-        Debug.Log("Play button clicked");
+        Debug.Log("megy");
         isTransitioning = true;
     }
 

@@ -2,13 +2,12 @@
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections;
-using System.Text;
 
 public class DatabaseManager : MonoBehaviour
 {
-    private string connectionString = "server=localhost;database=game_saves_db;user=root;password=";
+    private string connectionString = "server=localhost;database=gamedb;user=root;password=";
 
-    public static DatabaseManager instance { get; private set; }
+    public static DatabaseManager instance;
 
     private void Awake()
     {
@@ -16,40 +15,41 @@ public class DatabaseManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void UploadSaveFile(string playerID, byte[] encryptedData)
+    public void UploadSaveFile(string playerID, string plainJson)
     {
         try
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string query = "INSERT INTO save_files (player_id, data) VALUES (@id, @data) " +
-                               "ON DUPLICATE KEY UPDATE data=@data";
+                string query = "INSERT INTO save_files (player_id, json_data) VALUES (@id, @data) " +
+                               "ON DUPLICATE KEY UPDATE json_data=@data";
 
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@id", playerID);
-                    cmd.Parameters.AddWithValue("@data", encryptedData);
+                    cmd.Parameters.AddWithValue("@data", plainJson);
                     cmd.ExecuteNonQuery();
                 }
-                Debug.Log("save feltoltve");
+
+                Debug.Log("Save uploaded.");
             }
         }
         catch (Exception ex)
         {
-            Debug.LogError("save nem toltott fel" + ex.Message);
+            Debug.LogError("Failed to upload save JSON: " + ex.Message);
         }
     }
 
-    public IEnumerator DownloadSaveFile(string playerID, Action<byte[]> callback)
+    public IEnumerator DownloadSaveFile(string playerID, Action<string> callback)
     {
-        byte[] encryptedData = null;
+        string jsonData = null;
         try
         {
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                string query = "SELECT data FROM save_files WHERE player_id = @id";
+                string query = "SELECT json_data FROM save_files WHERE player_id = @id";
 
                 using (MySqlCommand cmd = new MySqlCommand(query, conn))
                 {
@@ -58,7 +58,7 @@ public class DatabaseManager : MonoBehaviour
                     {
                         if (reader.Read())
                         {
-                            encryptedData = (byte[])reader["data"];
+                            jsonData = reader["json_data"].ToString();
                         }
                     }
                 }
@@ -66,10 +66,10 @@ public class DatabaseManager : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogError("save nem toltott le" + ex.Message);
+            Debug.LogError("Failed to download save JSON: " + ex.Message);
         }
 
         yield return null;
-        callback?.Invoke(encryptedData);
+        callback?.Invoke(jsonData);
     }
 }

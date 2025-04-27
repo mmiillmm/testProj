@@ -7,19 +7,23 @@ using System.Collections;
 
 public class FileDataHandler
 {
-
     private string dataDirPath = "";
-
     private string dataFileName = "";
-
     private bool useEncryption = false;
-    private readonly string ecryptionPassword = "fuckyouhahadumbass";
+    private readonly string ecryptionPassword = "nananabooboo";
+
+    public GameData gameData;
 
     public FileDataHandler(string dataDirPath, string dataFileName, bool useEncryption)
     {
         this.dataDirPath = dataDirPath;
         this.dataFileName = dataFileName;
         this.useEncryption = useEncryption;
+    }
+
+    public void NewGame()
+    {
+        this.gameData = new GameData();
     }
 
     public GameData Load()
@@ -47,8 +51,7 @@ public class FileDataHandler
 
                 loadedData = JsonUtility.FromJson<GameData>(dataToLoad);
             }
-
-            catch(Exception e)
+            catch (Exception e)
             {
                 UnityEngine.Debug.LogError("Nem tud tölteni" + e.Message);
             }
@@ -79,7 +82,6 @@ public class FileDataHandler
                 }
             }
         }
-
         catch (Exception e)
         {
             UnityEngine.Debug.LogError("Nem tud menteni" + e.Message);
@@ -106,5 +108,4 @@ public class FileDataHandler
         }
         return null;
     }
-
 }

@@ -45,6 +45,15 @@ public class CameraMover : MonoBehaviour
         StartCoroutine(MoveCamera(gamePosition.position, gamePosition.rotation));
     }
 
+    public void CloseGame()
+    {
+        Application.Quit();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
+
     private IEnumerator MoveCamera(Vector3 destination, Quaternion targetRotation)
     {
         while (Vector3.Distance(mainCamera.transform.position, destination) > 0.1f ||

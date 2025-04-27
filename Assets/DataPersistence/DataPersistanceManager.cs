@@ -1,63 +1,51 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using System.Linq;
-using System.Collections;
+using System.IO;
+using System.Text;
+using UnityEngine.SceneManagement;
 
 public class DataPersistenceManager : MonoBehaviour
 {
-    [Header("File Storage Conf")]
-    [SerializeField] private string fileName;
-    [SerializeField] private bool useEncryption;
-    private string playerID = "PlayerTest";
-
+    [SerializeField] private string playerID = "player_001";
     private GameData gameData;
-    private List<IDataPersistence> dataPersistenceObjects;
-    private FileDataHandler dataHandler;
 
-    public static DataPersistenceManager instance { get; private set; }
+    private List<IDataPersistence> dataPersistenceObjects;
+    public static DataPersistenceManager instance;
 
     private void Awake()
     {
         if (instance == null) instance = this;
-        else
-        {
-            Debug.LogError("csak egy dbm lehet");
-            Destroy(gameObject);
-        }
+        else Destroy(gameObject);
     }
 
     private void Start()
     {
-        this.dataHandler = new FileDataHandler(Application.persistentDataPath, fileName, useEncryption);
-        this.dataPersistenceObjects = FindAllDataPersistenceObjects();
         LoadGame();
     }
 
     public void NewGame()
     {
-        this.gameData = new GameData();
+        gameData = new GameData();
     }
 
     public void LoadGame()
     {
-        DatabaseManager dbManager = FindFirstObjectByType<DatabaseManager>();
-        if (dbManager == null)
+        StartCoroutine(DatabaseManager.instance.DownloadSaveFile(playerID, (json) =>
         {
-            Debug.LogError("dbm nincs meg");
-            return;
-        }
-
-        StartCoroutine(dbManager.DownloadSaveFile(playerID, (byte[] encryptedData) =>
-        {
-            if (encryptedData == null)
+            if (!string.IsNullOrEmpty(json))
             {
-                Debug.LogWarning("nincs data, uj save keszites");
+                gameData = JsonUtility.FromJson<GameData>(json);
+                Debug.Log("jatek toltve dbbol");
+            }
+            else
+            {
                 NewGame();
-                return;
+                Debug.Log("nincs save, uj game");
             }
 
-            string decryptedJson = XORDecrypt(encryptedData);
-            gameData = JsonUtility.FromJson<GameData>(decryptedJson);
+            dataPersistenceObjects = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
+                .OfType<IDataPersistence>().ToList();
 
             foreach (IDataPersistence obj in dataPersistenceObjects)
             {
@@ -70,7 +58,7 @@ public class DataPersistenceManager : MonoBehaviour
     {
         if (gameData == null)
         {
-            Debug.LogError("no idea de valami szar");
+            Debug.LogWarning("nincs mentesre adat");
             return;
         }
 
@@ -80,48 +68,11 @@ public class DataPersistenceManager : MonoBehaviour
         }
 
         string json = JsonUtility.ToJson(gameData);
-        byte[] encryptedData = XOREncrypt(json);
-
-        DatabaseManager dbManager = FindFirstObjectByType<DatabaseManager>();
-        if (dbManager != null)
-        {
-            dbManager.UploadSaveFile(playerID, encryptedData);
-        }
-        else
-        {
-            Debug.LogError("nem talal dbmet");
-        }
+        DatabaseManager.instance.UploadSaveFile(playerID, json);
     }
 
     private void OnApplicationQuit()
     {
         SaveGame();
-    }
-
-    private List<IDataPersistence> FindAllDataPersistenceObjects()
-    {
-        IEnumerable<IDataPersistence> objs = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IDataPersistence>();
-        return new List<IDataPersistence>(objs);
-    }
-
-    private byte[] XOREncrypt(string data)
-    {
-        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(data);
-        byte key = 0x5A;
-        for (int i = 0; i < bytes.Length; i++)
-        {
-            bytes[i] ^= key;
-        }
-        return bytes;
-    }
-
-    private string XORDecrypt(byte[] data)
-    {
-        byte key = 0x5A;
-        for (int i = 0; i < data.Length; i++)
-        {
-            data[i] ^= key;
-        }
-        return System.Text.Encoding.UTF8.GetString(data);
     }
 }
