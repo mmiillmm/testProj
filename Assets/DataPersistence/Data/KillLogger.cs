@@ -13,6 +13,15 @@ public class KillLogger : MonoBehaviour, IDataPersistence
     {
         totalKills++;
         Debug.Log($"logolva: {totalKills}");
+
+        if (DataPersistenceManager.instance != null)
+        {
+            DataPersistenceManager.instance.SaveGame();
+        }
+        else
+        {
+            Debug.LogWarning("dpm instance nincs meg!");
+        }
     }
 
     public void LoadData(GameData data)

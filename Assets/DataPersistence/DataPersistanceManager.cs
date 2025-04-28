@@ -2,14 +2,13 @@
 using UnityEngine;
 using System.Linq;
 using System.IO;
-using System.Text;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class DataPersistenceManager : MonoBehaviour
 {
-    [SerializeField] private string playerID = "player_001";
+    [SerializeField] private string playerID = "default_player";
     private GameData gameData;
-
     private List<IDataPersistence> dataPersistenceObjects;
     public static DataPersistenceManager instance;
 
@@ -19,29 +18,44 @@ public class DataPersistenceManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    private void Start()
+    public void LoadNameAndSave()
     {
-        LoadGame();
+        StartCoroutine(LoadThenSaveRoutine());
     }
 
-    public void NewGame()
+    private IEnumerator LoadThenSaveRoutine()
     {
-        gameData = new GameData();
+        string path = @"H:\xampp\htdocs\project-main\backend\active_user.txt";
+
+        if (File.Exists(path))
+        {
+            playerID = File.ReadAllText(path).Trim();
+            Debug.Log("playerid betoltve" + playerID);
+        }
+        else
+        {
+            Debug.LogWarning("active_user.txt nincs meg " + path + " — defa idt hasznal.");
+        }
+
+        yield return StartCoroutine(LoadGameRoutine());
+        SaveGame();
     }
 
-    public void LoadGame()
+    private IEnumerator LoadGameRoutine()
     {
+        bool isDone = false;
+
         StartCoroutine(DatabaseManager.instance.DownloadSaveFile(playerID, (json) =>
         {
             if (!string.IsNullOrEmpty(json))
             {
                 gameData = JsonUtility.FromJson<GameData>(json);
-                Debug.Log("jatek toltve dbbol");
+                Debug.Log("jatek betoltve");
             }
             else
             {
                 NewGame();
-                Debug.Log("nincs save, uj game");
+                Debug.Log("nincs save, uj jatek kezdve");
             }
 
             dataPersistenceObjects = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
@@ -51,14 +65,23 @@ public class DataPersistenceManager : MonoBehaviour
             {
                 obj.LoadData(gameData);
             }
+
+            isDone = true;
         }));
+
+        yield return new WaitUntil(() => isDone);
+    }
+
+    public void NewGame()
+    {
+        gameData = new GameData();
     }
 
     public void SaveGame()
     {
         if (gameData == null)
         {
-            Debug.LogWarning("nincs mentesre adat");
+            Debug.LogWarning("nincs mentheto adat");
             return;
         }
 
@@ -69,10 +92,11 @@ public class DataPersistenceManager : MonoBehaviour
 
         string json = JsonUtility.ToJson(gameData);
         DatabaseManager.instance.UploadSaveFile(playerID, json);
+        Debug.Log("jatek mentve neki " + playerID);
     }
-
     private void OnApplicationQuit()
     {
         SaveGame();
     }
+
 }

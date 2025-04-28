@@ -32,12 +32,12 @@ public class DatabaseManager : MonoBehaviour
                     cmd.ExecuteNonQuery();
                 }
 
-                Debug.Log("Save uploaded.");
+                Debug.Log("save feltoltve.");
             }
         }
         catch (Exception ex)
         {
-            Debug.LogError("Failed to upload save JSON: " + ex.Message);
+            Debug.LogError("nem sikerult jsont feltolteni: " + ex.Message);
         }
     }
 
@@ -66,7 +66,7 @@ public class DatabaseManager : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogError("Failed to download save JSON: " + ex.Message);
+            Debug.LogError("jsont nem sikerult letolteni " + ex.Message);
         }
 
         yield return null;
